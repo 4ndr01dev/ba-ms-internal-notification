@@ -1,0 +1,53 @@
+[project]
+name = "etl-template"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.12.2",
+    "typer>=0.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "pre-commit",
+    "python-dotenv",
+    "ruff",
+    "rich",
+    "pyrefly",
+    "tqdm",
+]
+mypy = [
+    "mypy",
+    "types-requests",
+]
+tests = [
+    "pytest",
+]
+redis = [
+    "redis",
+    "pyjwt",
+    "requests",
+]
+google = [
+    "google-cloud-logging",
+    "google-cloud-secret-manager",
+    "requests",
+]
+
+[tool.ruff]
+line-length = 80
+show-fixes = true
+select = [ "F", "W", "E", "I", "UP", "PL", "T201",]
+ignore = [ "E501",]
+
+[tool.black]
+line-length = 80
+preview = true
+unstable = true
+
+[tool.pyrefly]
+project-includes = ["**/*"]
+project-excludes = ["**/*venv/**/*"]
