@@ -1,36 +1,28 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 import click
 import typer
 
-from .etl.extract import extract_data
-from .etl.load import load_data
-from .etl.transform import transform_data
 from .schemas import Parameters
+from .service.notify import dummy_notify
 from .utils.logging import LOG_LEVELS, check_if_any_logger_is_below_level
 from .utils.secrets import load_custom_dotenv
 
 
 def main(
-    arg_example: Annotated[
+    ts_id: Annotated[
         str,
         typer.Option(
-            help=(
-                "This is an example argument. "
-                "Delete it when you start developing your ETL."
-            ),
+            help="Time series identifier to process.",
         ),
-    ] = "default",
-    arg_ex_with_choices: Annotated[
-        str,
+    ],
+    type: Annotated[
+        Literal["operational", "satelite"],
         typer.Option(
-            help=(
-                "This is an example argument with choices. "
-                "Delete it when you start developing your ETL."
-            ),
-            click_type=click.Choice(["choice1", "choice2", "choice3"]),
+            help="Type of time series (operational or satelite).",
+            click_type=click.Choice(["operational", "satelite"]),
         ),
-    ] = "choice1",
+    ],
     max_level_logging: Annotated[
         str,
         typer.Option(
@@ -47,20 +39,16 @@ def main(
     ] = "INFO",
 ):
     """
-    Main function to run the ETL process.
+    Main function to run the dummy notification process.
     """
 
     # Load the dotenv file if load_dotenv is available.
     load_custom_dotenv()
 
-    params = Parameters(
-        arg_example=arg_example,
-        arg_ex_with_choices=arg_ex_with_choices,
-    )
+    params = Parameters(ts_id=ts_id, type=type)
 
-    extracted_data = extract_data(params)
-    transformed_data = transform_data(extracted_data, params)
-    load_data(transformed_data, params)
+    # Dummy execution: only print to console
+    dummy_notify()
 
     # Raise a warning if any logger is below the INFO level.
     if check_if_any_logger_is_below_level(max_level=max_level_logging):
