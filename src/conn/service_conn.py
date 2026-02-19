@@ -1,61 +1,67 @@
 """
-Module to connect to the service.
+Module to connect to InfluxDB service.
 """
 
 __all__ = [
-    "JWT_OPTIONAL_TOKEN_PREFIX",
-    "extract_payload_from_jwt",
-    "CloudRunService",
+    "InfluxDBService",
 ]
 
-from collections.abc import Callable
-
-import requests  # type: ignore
+import os
+from typing import Any
 
 from ..utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-JWT_OPTIONAL_TOKEN_PREFIX = "x-apigateway-api-userinfo"
 
+class InfluxDBService:
+    def __init__(self):
+        self._host = os.getenv("INFLUXDB_HOST")
+        self._org = os.getenv("INFLUXDB_ORG")
+        self._bucket = os.getenv("INFLUXDB_BUCKET")
+        self._token_key = os.getenv("INFLUXDB_TOKEN_KEY")
 
-def extract_payload_from_jwt(token: str) -> str:
-    """
-    Extract the encoded payload from a JWT.
-    """
-    return token.split(".")[1]
+        logger.info(f"InfluxDB Service initialized with host: {self._host}")
 
+    def query_data_dummy(
+        self, measurement: str = "test_measurement"
+    ) -> dict[str, Any]:
+        """
+        Dummy function to simulate reading data from InfluxDB.
 
-class CloudRunService:
-    def __init__(self, service_url: str):
-        self._service_url = service_url
+        Args:
+            measurement: The measurement name to query (dummy parameter)
 
-    def get_token(self) -> str:
-        """Get a token for the service."""
-        import google.auth.transport.requests as g_auth_req  # type: ignore # noqa: PLC0415
-        import google.oauth2.id_token as g_oauth2_id_token  # type: ignore # noqa: PLC0415
+        Returns:
+            A dictionary simulating query results from InfluxDB
+        """
+        logger.info(
+            f"Simulating query to InfluxDB - Bucket: {self._bucket}, Measurement: {measurement}"
+        )
 
-        auth_req = g_auth_req.Request()
-        target_audience = self._service_url
-        id_token = g_oauth2_id_token.fetch_id_token(auth_req, target_audience)
-        return id_token  # type: ignore
+        # Simulated response
+        dummy_data = {
+            "status": "success",
+            "bucket": self._bucket,
+            "org": self._org,
+            "measurement": measurement,
+            "data": [
+                {
+                    "time": "2026-02-19T10:00:00Z",
+                    "field1": 42.5,
+                    "field2": "sample_value",
+                    "tag1": "sensor_1",
+                },
+                {
+                    "time": "2026-02-19T10:01:00Z",
+                    "field1": 43.2,
+                    "field2": "sample_value_2",
+                    "tag1": "sensor_1",
+                },
+            ],
+        }
 
-    def _call_op(self, op: Callable, path: str, **kwargs) -> requests.Response:
-        if "headers" in kwargs:
-            kwargs["headers"]["Authorization"] = f"Bearer {self.get_token()}"
-        else:
-            kwargs["headers"] = dict(Authorization=f"Bearer {self.get_token()}")
-
-        return op(self._service_url + path, **kwargs)
-
-    def get(self, path: str, **kwargs) -> requests.Response:
-        return self._call_op(requests.get, path, **kwargs)
-
-    def post(self, path: str, **kwargs) -> requests.Response:
-        return self._call_op(requests.post, path, **kwargs)
-
-    def delete(self, path: str, **kwargs) -> requests.Response:
-        return self._call_op(requests.delete, path, **kwargs)
-
-    def patch(self, path: str, **kwargs) -> requests.Response:
-        return self._call_op(requests.patch, path, **kwargs)
+        logger.info(
+            f"Query simulation completed. Returned {len(dummy_data['data'])} records"
+        )
+        return dummy_data
