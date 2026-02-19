@@ -4,6 +4,7 @@ import click
 import typer
 
 from .schemas import Parameters
+from .service.extract import extract_data
 from .service.notify import dummy_notify
 from .utils.logging import LOG_LEVELS, check_if_any_logger_is_below_level
 from .utils.secrets import load_custom_dotenv
@@ -42,15 +43,14 @@ def main(
     Main function to run the dummy notification process.
     """
 
-    # Load the dotenv file if load_dotenv is available.
     load_custom_dotenv()
 
     params = Parameters(ts_id=ts_id, type=type)
 
-    # Dummy execution: only print to console
+    extract_data(params=params)
+
     dummy_notify()
 
-    # Raise a warning if any logger is below the INFO level.
     if check_if_any_logger_is_below_level(max_level=max_level_logging):
         raise RuntimeError(
             f"Some logger is below the '{max_level_logging}' level"

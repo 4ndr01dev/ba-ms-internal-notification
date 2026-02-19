@@ -3,7 +3,7 @@ Module to connect to InfluxDB service.
 """
 
 __all__ = [
-    "InfluxDBService",
+    "influx_db_service",
 ]
 
 import os
@@ -14,7 +14,7 @@ from ..utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-class InfluxDBService:
+class influx_db_service:
     def __init__(self):
         self._host = os.getenv("INFLUXDB_HOST")
         self._org = os.getenv("INFLUXDB_ORG")
